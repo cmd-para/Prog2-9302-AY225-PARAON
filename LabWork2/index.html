@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Josh's Login System</title>
+    <style>
+        /* --- RESET & BASE STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Apple System Font Stack */
+            font-family: Helvetica, Arial, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            /* GENTLE DARK PURPLE GRADIENT BACKGROUND */
+            background: linear-gradient(135deg, #1a0608 0%, #4a0f14 50%, #2b0a0e 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- THE GLASS CONTAINERS --- */
+        .login-container, .welcome-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            
+            /* GLASSMORPHISM CORE STYLES */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            
+            /* GLOBAL TEXT COLOR FOR CONTAINERS */
+            color: #ffffff;
+            transition: transform 0.3s ease;
+        }
+
+        h1, .welcome-message {
+            text-align: center;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- SPECIFIC WELCOME PAGE TEXT FIX --- */
+        #welcomeUsername, 
+        #welcomeUsername span, 
+        #welcomeUsername strong, 
+        #welcomeUsername b {
+            color: #ffffff !important; 
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- BUTTONS --- */
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #552d2d 0%, #b65d5d 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .logout-button {
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.5);
+            color: #ffffff;
+            margin-top: 25px;
+        }
+        
+        .logout-button:hover {
+            background: rgba(255, 59, 48, 0.6);
+            color: white;
+        }
+
+        /* --- MESSAGES & TIMESTAMPS --- */
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .success {
+            background-color: rgba(52, 199, 89, 0.2);
+            color: #ffffff;
+            border: 1px solid rgba(52, 199, 89, 0.5);
+        }
+
+        .error {
+            background-color: rgba(255, 59, 48, 0.2);
+            color: #ffffff;
+            border: 1px solid rgba(255, 59, 48, 0.5);
+        }
+
+        .timestamp {
+            margin-top: 20px;
+            padding: 10px;
+            color: #ffffff !important; 
+            text-align: center;
+            font-size: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-container, .welcome-container {
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+    </style>
+</head>
+<body>
+    <div id="loginContainer" class="login-container">
+        <h1>w e l c o m e</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">u s e r n a m e</label>
+                <input type="text" id="username" name="username" placeholder="e n t e r _ y o u r _ u s e r n a m e" required>
+            </div>
+            <div class="form-group">
+                <label for="password">p a s s w o r d</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit">l o g - i n</button>
+        </form>
+        <div id="message"></div>
+        <div id="timestamp"></div>
+    </div>
+    
+    <div id="welcomeContainer" class="welcome-container hidden">
+        <h1 class="welcome-message">h e l l o .</h1>
+        <div id="welcomeUsername"></div>
+        <div id="welcomeTimestamp" class="timestamp"></div>
+        <button id="logoutButton" class="logout-button">s i g n - o u t</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
