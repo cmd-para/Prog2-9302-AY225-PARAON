@@ -3,24 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lab Work Grades</title>
+    <title>Lab Work Grades | Liquid Glass</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
     <main class="container">
-      <h1>Programming 2 Grade Calculator (Prelims Term)</h1>
+      <header>
+        <h1>Programming 2</h1>
+        <p class="subtitle">Prelims Term Grade Calculator</p>
+      </header>
 
       <form id="gradesForm" autocomplete="off">
         <div class="field">
-          <label for="attendanceCount">Number of attendances (0 - 16)</label>
+          <label for="attendanceCount">Attendances (0 - 7)</label>
           <input
             id="attendanceCount"
             name="attendanceCount"
             type="number"
             min="0"
-            max="16"
+            max="7"
             step="1"
-            placeholder="e.g., 12"
+            placeholder="e.g., 5"
           />
         </div>
 
