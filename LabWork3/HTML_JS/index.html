@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lab Work Grades</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Programming 2 Grade Calculator (Prelims Term)</h1>
+
+      <form id="gradesForm" autocomplete="off">
+        <div class="field">
+          <label for="attendanceCount">Number of attendances (0 - 16)</label>
+          <input
+            id="attendanceCount"
+            name="attendanceCount"
+            type="number"
+            min="0"
+            max="16"
+            step="1"
+            placeholder="e.g., 12"
+          />
+        </div>
+
+        <div class="field">
+          <label for="lab1Grade">Lab Work 1 Grade</label>
+          <input
+            id="lab1Grade"
+            name="lab1Grade"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g., 85"
+          />
+        </div>
+
+        <div class="field">
+          <label for="lab2Grade">Lab Work 2 Grade</label>
+          <input
+            id="lab2Grade"
+            name="lab2Grade"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g., 90"
+          />
+        </div>
+
+        <div class="field">
+          <label for="lab3Grade">Lab Work 3 Grade</label>
+          <input
+            id="lab3Grade"
+            name="lab3Grade"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g., 88"
+          />
+        </div>
+      </form>
+    </main>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>

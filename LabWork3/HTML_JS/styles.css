@@ -1,0 +1,147 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  h1 {
+    color: #2d3748;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  h2 {
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 0.5rem;
+  }
+  
+  h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .field {
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  input[type="number"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  input[type="number"]::placeholder {
+    color: #a0aec0;
+  }
+  
+  .results {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+  }
+  
+  .result-section {
+    background: #f7fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #667eea;
+  }
+  
+  .result-section p {
+    margin-bottom: 0.75rem;
+    color: #2d3748;
+    line-height: 1.6;
+  }
+  
+  .result-section p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .result-section strong {
+    color: #1a202c;
+  }
+  
+  .info {
+    color: #4299e1;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .excellent {
+    color: #38a169;
+    font-weight: 600;
+  }
+  
+  .good {
+    color: #3182ce;
+    font-weight: 600;
+  }
+  
+  .needs-improvement {
+    color: #e53e3e;
+    font-weight: 600;
+  }
+  
+  .warning {
+    color: #d69e2e;
+    font-weight: 600;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 640px) {
+    .container {
+      padding: 1.5rem;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+    }
+  
+    h2 {
+      font-size: 1.25rem;
+    }
+  
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
