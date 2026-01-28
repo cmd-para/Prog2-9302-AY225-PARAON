@@ -19,16 +19,30 @@
 
       <form id="gradesForm" autocomplete="off">
         <div class="field">
-          <label for="attendanceCount">Attendances (0 - 7)</label>
+          <label for="attendanceCount">Attendances (0 - 5)</label>
           <input
             id="attendanceCount"
             name="attendanceCount"
             type="number"
             min="0"
-            max="7"
+            max="5"
             step="1"
-            placeholder="e.g., 5"
+            placeholder="e.g., 4"
           />
+        </div>
+
+        <div class="field">
+          <label for="excusedAbsences">Excused Absences (Optional)</label>
+          <input
+            id="excusedAbsences"
+            name="excusedAbsences"
+            type="number"
+            min="0"
+            max="5"
+            step="1"
+            placeholder="e.g., 1"
+          />
+          <small style="display: block; margin-top: 4px; color: #666;">Excused absences count as full attendance</small>
         </div>
 
         <div class="field">

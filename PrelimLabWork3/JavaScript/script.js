@@ -1,6 +1,7 @@
 // Get form and input elements
 const form = document.getElementById('gradesForm');
 const attendanceInput = document.getElementById('attendanceCount');
+const excusedAbsencesInput = document.getElementById('excusedAbsences');
 const lab1Input = document.getElementById('lab1Grade');
 const lab2Input = document.getElementById('lab2Grade');
 const lab3Input = document.getElementById('lab3Grade');
@@ -12,25 +13,46 @@ resultsDiv.className = 'results';
 document.querySelector('.container').appendChild(resultsDiv);
 
 // Add event listeners to all inputs
-[attendanceInput, lab1Input, lab2Input, lab3Input].forEach(input => {
+[attendanceInput, excusedAbsencesInput, lab1Input, lab2Input, lab3Input].forEach(input => {
   input.addEventListener('input', calculateGrades);
 });
 
 function calculateGrades() {
   // Get input values
   let attendanceCount = parseFloat(attendanceInput.value) || 0;
+  let excusedAbsences = parseFloat(excusedAbsencesInput.value) || 0;
   let lab1 = parseFloat(lab1Input.value) || 0;
   let lab2 = parseFloat(lab2Input.value) || 0;
   let lab3 = parseFloat(lab3Input.value) || 0;
 
-  // Enforce attendance limit (0-7)
+  // Enforce attendance limit (0-5)
   if (attendanceCount < 0) {
     attendanceCount = 0;
     attendanceInput.value = 0;
-  } else if (attendanceCount > 7) {
-    attendanceCount = 7;
-    attendanceInput.value = 7;
+  } else if (attendanceCount > 5) {
+    attendanceCount = 5;
+    attendanceInput.value = 5;
   }
+
+  // Enforce excused absences limit (0-5)
+  if (excusedAbsences < 0) {
+    excusedAbsences = 0;
+    excusedAbsencesInput.value = 0;
+  } else if (excusedAbsences > 5) {
+    excusedAbsences = 5;
+    excusedAbsencesInput.value = 5;
+  }
+
+  // Hard limit: attendance + excused absences cannot exceed 5
+  if (attendanceCount + excusedAbsences > 5) {
+    // Adjust the most recently changed value
+    const attendanceMax = 5 - excusedAbsences;
+    attendanceCount = Math.max(0, attendanceMax);
+    attendanceInput.value = attendanceCount;
+  }
+
+  // Calculate total effective attendance (attendance + excused absences)
+  let totalAttendance = attendanceCount + excusedAbsences;
 
   // Enforce lab work grade limits (0-100)
   if (lab1 < 0) {
@@ -57,15 +79,27 @@ function calculateGrades() {
     lab3Input.value = 100;
   }
 
-  // Check if all inputs have values
+  // Check if all required inputs have values (excused absences is optional)
   if (!attendanceInput.value || !lab1Input.value || !lab2Input.value || !lab3Input.value) {
     resultsDiv.innerHTML = '<p class="info">Please enter all values to see results.</p>';
     return;
   }
 
   // Validate attendance range
-  if (attendanceCount < 0 || attendanceCount > 7) {
-    resultsDiv.innerHTML = '<p class="warning">⚠️ Attendance must be between 0 and 7.</p>';
+  if (attendanceCount < 0 || attendanceCount > 5) {
+    resultsDiv.innerHTML = '<p class="warning">⚠️ Attendance must be between 0 and 5.</p>';
+    return;
+  }
+
+  // Validate excused absences range
+  if (excusedAbsences < 0 || excusedAbsences > 5) {
+    resultsDiv.innerHTML = '<p class="warning">⚠️ Excused absences must be between 0 and 5.</p>';
+    return;
+  }
+
+  // Validate that attendance + excused absences doesn't exceed 5
+  if (totalAttendance > 5) {
+    resultsDiv.innerHTML = '<p class="warning">⚠️ Total attendance (physical + excused) cannot exceed 5.</p>';
     return;
   }
 
@@ -75,12 +109,32 @@ function calculateGrades() {
     return;
   }
 
+  // Calculate unexcused absences
+  const unexcusedAbsences = 5 - totalAttendance;
+
+  // Check if student has 4 or more unexcused absences (failed due to absences)
+  if (unexcusedAbsences >= 4) {
+    let html = '<h2>Results</h2>';
+    html += '<div class="result-section">';
+    html += '<h3>Course Status</h3>';
+    html += `<p class="warning" style="font-size: 1.1em; font-weight: bold;">❌ FAILED DUE TO EXCESSIVE ABSENCES</p>`;
+    html += `<p><strong>Physical Attendances:</strong> ${attendanceCount} out of 5</p>`;
+    if (excusedAbsences > 0) {
+      html += `<p><strong>Excused Absences:</strong> ${excusedAbsences}</p>`;
+    }
+    html += `<p><strong>Unexcused Absences:</strong> ${unexcusedAbsences} out of 5</p>`;
+    html += '<p style="margin-top: 16px; color: #d32f2f;">Students with 4 or more unexcused absences automatically fail the course, regardless of grades.</p>';
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+    return;
+  }
+
   // Calculate Lab Work Average
   const labWorkAverage = (lab1 + lab2 + lab3) / 3;
 
-  // Calculate Attendance Score (7 attendances = 100%)
-  const maxAttendances = 7;
-  const attendanceScore = (attendanceCount / maxAttendances) * 100;
+  // Calculate Attendance Score (5 attendances = 100%)
+  const maxAttendances = 5;
+  const attendanceScore = (totalAttendance / maxAttendances) * 100;
 
   // Calculate Class Standing
   const classStanding = (attendanceScore * 0.40) + (labWorkAverage * 0.60);
@@ -115,7 +169,13 @@ function calculateGrades() {
   
   html += '<div class="result-section">';
   html += '<h3>Computed Values</h3>';
-  html += `<p><strong>Attendance Score:</strong> ${attendanceScore.toFixed(2)} (${attendanceCount} out of 7 attendances)</p>`;
+  html += `<p><strong>Physical Attendances:</strong> ${attendanceCount} out of 5</p>`;
+  if (excusedAbsences > 0) {
+    html += `<p><strong>Excused Absences:</strong> ${excusedAbsences}</p>`;
+  }
+  html += `<p><strong>Unexcused Absences:</strong> ${unexcusedAbsences} out of 5</p>`;
+  html += `<p><strong>Total Effective Attendance:</strong> ${totalAttendance} out of 5</p>`;
+  html += `<p><strong>Attendance Score:</strong> ${attendanceScore.toFixed(2)}%</p>`;
   html += `<p><strong>Lab Work 1:</strong> ${lab1.toFixed(2)}</p>`;
   html += `<p><strong>Lab Work 2:</strong> ${lab2.toFixed(2)}</p>`;
   html += `<p><strong>Lab Work 3:</strong> ${lab3.toFixed(2)}</p>`;
