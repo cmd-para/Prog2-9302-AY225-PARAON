@@ -1,0 +1,14 @@
+MP05: Extract Values from a Column
+The logic starts by capturing a file path and a specific index to target one part of the data.
+The code then scans the file line by line, using a specialized parsing method to ensure that commas inside quoted text do not break the column alignment.
+Finally, it stores and prints every value found in that specific column while ignoring rows that are too short to contain it.
+
+MP06: Display Unique Values
+This script focuses on finding every distinct piece of information by mapping each CSV column to a unique set of values.
+By using a LinkedHashSet, the program automatically ignores duplicate entries while remembering the order in which it first saw each unique item.
+The output presents a detailed breakdown for every single column, providing both a total count of unique entries and a list of the values themselves.
+
+MP07: Sort Entire Dataset Alphabetically
+The program implements a persistent input loop that keeps asking for a file until it successfully reads a valid CSV.
+It performs an alphabetical sort by comparing two rows starting from the first column and moving to subsequent columns only if a tie needs to be broken.
+Once the entire list of records is reorganized, it displays the results in a formatted table that includes row numbers and the original headers.
