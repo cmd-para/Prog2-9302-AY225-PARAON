@@ -1,4 +1,5 @@
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 
@@ -59,11 +60,18 @@ public class DataAnalyticsDashboard {
         // ── Step 1: File Validation Loop ──────────────────────────────────────
         while (true) {
             System.out.print(CYAN + "  Enter dataset file path: " + RESET);
-            filePath = scanner.nextLine().trim();
+            filePath = resolvePath(scanner.nextLine().trim());
+
+
+
             File file = new File(filePath);
 
-            if (!file.exists() || !file.isFile()) {
+            if (!file.exists()) {
                 System.out.println(RED + "  [ERROR] File does not exist: \"" + filePath + "\". Please try again.\n" + RESET);
+                continue;
+            }
+            if (file.isDirectory()) {
+                System.out.println(RED + "  [ERROR] That path is a folder, not a file: \"" + filePath + "\". Please try again.\n" + RESET);
                 continue;
             }
             if (!file.canRead()) {
@@ -111,6 +119,31 @@ public class DataAnalyticsDashboard {
                     return;
                 }
                 default -> System.out.println(RED + "\n  [ERROR] Invalid choice. Please enter 1–5.\n" + RESET);
+            }
+        }
+    }
+
+    // ─── Path Resolver ────────────────────────────────────────────────────────
+    static String resolvePath(String input) {
+        // Strip surrounding quotes (single or double) that users sometimes paste
+        if ((input.startsWith("\"") && input.endsWith("\"")) ||
+            (input.startsWith("'")  && input.endsWith("'"))) {
+            input = input.substring(1, input.length() - 1).trim();
+        }
+        // Expand ~ to the user's home directory
+        if (input.startsWith("~")) {
+            String home = System.getProperty("user.home");
+            input = home + input.substring(1);
+        }
+        // Use canonical path to fully resolve symlinks and clean up the path
+        try {
+            return Paths.get(input).toRealPath().toString();
+        } catch (IOException e) {
+            // File may not exist yet — fall back to absolute path
+            try {
+                return new File(input).getCanonicalPath();
+            } catch (IOException ex) {
+                return new File(input).getAbsolutePath();
             }
         }
     }
@@ -222,30 +255,60 @@ public class DataAnalyticsDashboard {
 
     // ─── Option 2: Sales by Console ───────────────────────────────────────────
     static void monthlySales(List<GameRecord> data) {
-        printSectionHeader("SALES BY CONSOLE (Top 15)");
+        printSectionHeader("ALL CONSOLES BY TOTAL SALES");
 
         Map<String, Double> salesByConsole = data.stream()
             .filter(g -> g.totalSales > 0 && !g.console.isBlank())
             .collect(Collectors.groupingBy(g -> g.console,
                      Collectors.summingDouble(g -> g.totalSales)));
 
-        salesByConsole.entrySet().stream()
+        List<Map.Entry<String, Double>> sorted = salesByConsole.entrySet().stream()
             .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-            .limit(15)
-            .forEach(e -> {
+            .collect(Collectors.toList());
+
+        int total      = sorted.size();
+        int pageSize   = 20;
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+        int[] page     = {0};
+
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            int from = page[0] * pageSize;
+            int to   = Math.min(from + pageSize, total);
+
+            System.out.printf("%n  " + CYAN + "%-4s  %-10s  %-40s  %10s" + RESET + "%n",
+                "Rank", "Console", "Sales Chart", "Total Sales");
+            System.out.println("  " + "─".repeat(70));
+
+            for (int i = from; i < to; i++) {
+                Map.Entry<String, Double> e = sorted.get(i);
                 int barLen = (int) Math.min(e.getValue() / 10, 40);
                 String bar = "█".repeat(barLen);
-                System.out.printf("  " + YELLOW + "%-8s" + RESET + " │ " +
-                    GREEN + "%-40s" + RESET + " " + WHITE + "%8.2f M" + RESET + "%n",
-                    e.getKey(), bar, e.getValue());
-            });
+                System.out.printf("  " + YELLOW + "%-4d" + RESET +
+                    "  %-10s  " + GREEN + "%-40s" + RESET +
+                    "  " + WHITE + "%8.2f M" + RESET + "%n",
+                    i + 1, e.getKey(), bar, e.getValue());
+            }
 
-        printDivider();
+            System.out.printf("%n  " + BLUE + "Page %d of %d  (%d consoles total)" + RESET + "%n",
+                page[0] + 1, totalPages, total);
+            System.out.println("  " + CYAN + "[N] Next   [P] Previous   [Q] Back to menu" + RESET);
+            System.out.print(CYAN + "  Enter choice: " + RESET);
+
+            String nav = sc.nextLine().trim().toUpperCase();
+            switch (nav) {
+                case "N" -> { if (page[0] < totalPages - 1) page[0]++; }
+                case "P" -> { if (page[0] > 0) page[0]--; }
+                case "Q" -> { printDivider(); return; }
+                default  -> System.out.println(RED + "  [ERROR] Invalid input. Use N, P, or Q." + RESET);
+            }
+        }
     }
 
-    // ─── Option 3: Top Publishers ─────────────────────────────────────────────
+    // ─── Option 3: All Publishers ─────────────────────────────────────────────
     static void topPublishers(List<GameRecord> data) {
-        printSectionHeader("TOP 10 PUBLISHERS BY TOTAL SALES");
+        printSectionHeader("ALL PUBLISHERS BY TOTAL SALES");
 
         Map<String, Double> pubSales = data.stream()
             .filter(g -> g.totalSales > 0 && !g.publisher.isBlank())
@@ -256,24 +319,48 @@ public class DataAnalyticsDashboard {
             .filter(g -> !g.publisher.isBlank())
             .collect(Collectors.groupingBy(g -> g.publisher, Collectors.counting()));
 
-        System.out.printf("  " + CYAN + "%-4s  %-30s  %10s  %8s" + RESET + "%n",
-            "Rank", "Publisher", "Total Sales", "Titles");
-        System.out.println("  " + "─".repeat(58));
-
-        final int[] rank = {1};
-        pubSales.entrySet().stream()
+        List<Map.Entry<String, Double>> sorted = pubSales.entrySet().stream()
             .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-            .limit(10)
-            .forEach(e -> {
+            .collect(Collectors.toList());
+
+        int total     = sorted.size();
+        int pageSize  = 20;
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+        int[] page    = {0};
+
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            int from = page[0] * pageSize;
+            int to   = Math.min(from + pageSize, total);
+
+            System.out.printf("%n  " + CYAN + "%-4s  %-30s  %10s  %8s" + RESET + "%n",
+                "Rank", "Publisher", "Total Sales", "Titles");
+            System.out.println("  " + "─".repeat(58));
+
+            for (int i = from; i < to; i++) {
+                Map.Entry<String, Double> e = sorted.get(i);
                 System.out.printf("  " + YELLOW + "%-4d" + RESET +
                     "  %-30s  " + GREEN + "%8.2f M" + RESET + "  %8d%n",
-                    rank[0]++,
+                    i + 1,
                     truncate(e.getKey(), 30),
                     e.getValue(),
                     pubTitles.getOrDefault(e.getKey(), 0L));
-            });
+            }
 
-        printDivider();
+            System.out.printf("%n  " + BLUE + "Page %d of %d  (%d publishers total)" + RESET + "%n",
+                page[0] + 1, totalPages, total);
+            System.out.println("  " + CYAN + "[N] Next   [P] Previous   [Q] Back to menu" + RESET);
+            System.out.print(CYAN + "  Enter choice: " + RESET);
+
+            String nav = sc.nextLine().trim().toUpperCase();
+            switch (nav) {
+                case "N" -> { if (page[0] < totalPages - 1) page[0]++; }
+                case "P" -> { if (page[0] > 0) page[0]--; }
+                case "Q" -> { printDivider(); return; }
+                default  -> System.out.println(RED + "  [ERROR] Invalid input. Use N, P, or Q." + RESET);
+            }
+        }
     }
 
     // ─── Option 4: Category Analysis ─────────────────────────────────────────
